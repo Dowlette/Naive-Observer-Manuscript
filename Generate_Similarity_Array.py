@@ -14,19 +14,19 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-#upload the data you are going to turn into a simularity matrix
+#upload the data you are going to turn into a similarity matrix
 #the code is written to so that the first row of data is the third column in the excel sheet
 #this code is also written so that it analyzes 7 columns (becuase there is 7 observers) column 2=observer 1...column8=observer 7
 #make sure your data is formatted correclty before importing it so that the code reads to excel sheet correclty 
 #data = pd.read_excel ('/Users/dowlettealameldin/Desktop/PhD/Stroke Project/RawDatasetWPython copy.xlsx')
 #print(data)
 
-# iterate through the dataframe to make a simularity matrix, i is the row
+# iterate through the dataframe to make a similarity matrix, i is the row
 #
 #this code functions by going through each row/column and completting pairwise comparisons
 
 #this part is making the function that compares the image identities
-def make_simularity_matrix(i, numObs):
+def make_similarity_matrix(i, numObs):
     '''
     Parameters
     ----------
@@ -68,14 +68,14 @@ if __name__ == "__main__":
     data = pd.read_excel(args.datafile)
     nCols = len(data.columns) - 2       # the first two columns are just names of the images
     
-    #this part calls on the function made above to compile the results into a simularity matrix
-    simularitymatrix = []
+    #this part calls on the function made above to compile the results into a similarity matrix
+    similaritymatrix = []
     for i in range(0, len(data)):
-        simularitymatrix.append(make_simularity_matrix(i, nCols)) 
-        print(simularitymatrix)
+        similaritymatrix.append(make_similarity_matrix(i, nCols)) 
+        print(similaritymatrix)
     
     #turn the array into a numpy array
-    simularity_array = np.array(simularitymatrix)
+    similarity_array = np.array(similaritymatrix)
 
     # make a dict for renaming the dataframe {col number : image name}
     nameList = list(data[data.columns[1]])
@@ -83,23 +83,23 @@ if __name__ == "__main__":
     names = dict(zip(length,nameList))
 
     #turn the array into a dataframe
-    simularity_array = pd.DataFrame(simularity_array)
+    similarity_array = pd.DataFrame(similarity_array)
 
-    simularity_array.rename(names, inplace=True, axis=0)
-    simularity_array.rename(names, inplace=True, axis=1)
+    similarity_array.rename(names, inplace=True, axis=0)
+    similarity_array.rename(names, inplace=True, axis=1)
 
     # get the name of the input file to make a new output name
     fName = args.datafile.split('.')[0].split('/')[-1]
     
-    #save the new simularity arry to an excel sheet
-    simularity_array.to_excel('{}_Simularity_Matrix.xlsx'.format(fName))
+    #save the new similarity arry to an excel sheet
+    similarity_array.to_excel('{}_Similarity_Matrix.xlsx'.format(fName))
 
     #plot
     plt.figure(figsize=(20,16)) #increased figure siz for poster
     sns.set(font_scale=5) #increased font for poster
-    g = sns.heatmap(simularity_array, cmap='cividis', cbar=True) #cmap dictates color palette
+    g = sns.heatmap(similarity_array, cmap='cividis', cbar=True)  #cmap dictates color palette
 
-    plt.savefig('{}_Simularity_Matrix.jpg'.format(fName))
-    plt.savefig('{}_Simularity_Matrix.pdf'.format(fName))
-    plt.savefig('{}_Simularity_Matrix.pdf'.format(fName))
-    plt.savefig('{}_Simularity_Matrix.tiff'.format(fName))
+    plt.savefig('{}_Similarity_Matrix.jpg'.format(fName))
+    plt.savefig('{}_Similarity_Matrix.pdf'.format(fName))
+    plt.savefig('{}_Similarity_Matrix.png'.format(fName))
+    plt.savefig('{}_Similarity_Matrix.tiff'.format(fName))
