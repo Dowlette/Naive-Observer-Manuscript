@@ -2,37 +2,17 @@ install.packages("readxl")
 
 library("readxl")
 
-# Loading
-#library("readxl")
-
 # xlsx files
+#use simularity array or corrgram as datafile input
 my_data <- read_excel(file.choose())
+#my_data <- read_excel("/Users/dowlettealameldin/Desktop/dhklab/StrokeProject/DatasetResults/DataSetZResults1.5.xlsx")
 #you should only have the names in the columns, no row names
 colnames(my_data) #identify the column names
 
 library(tidyverse)
 my_data2<-my_data %>% remove_rownames %>% column_to_rownames(var="names") #identify row names (no two row names can be the same)
 
-#my_data <- read_excel("/Users/dowlettealameldin/Desktop/dhklab/StrokeProject/DatasetResults/DataSetZResults1.5.xlsx")
 
-# Pricipal Components Analysis
-# entering raw data and extracting PCs
-# from the correlation matrix
-#fit <- princomp(my_data, cor=TRUE)
-# fit <- prcomp(my_data)
-# summary(fit) # print variance accounted for
-# loadings(fit) # pc loadings
-# plot(fit,type="lines") # scree plot
-# fit$scores # the principal components
-# biplot(fit)
-
-###%
-
-# library(psych)
-# fit <- principal(my_data, nfactors=4, rotate="varimax")
-# fit # print results
-
-###% THIS IS THE BEST ONE!!
 # PCA Variable Factor Map
 install.packages("FactoMineR")
 library(FactoMineR)
@@ -40,7 +20,7 @@ result <- PCA(my_data2) # graphs generated automatically
 #plot(result,repel = TRUE ,max.overlaps = Inf,main = "")
 #write.csv(result, file="Users/dowlettealameldin/Desktop/dhklab/StrokeProject/datasetXPCAData.csv")
 ###% K-Means Clustering
-#https://afit-r.github.io/kmeans_clustering this is where I got everything from 
+#Adapted from : https://afit-r.github.io/kmeans_clustering 
 install.packages("tidyverse")
 install.packages("cluster")
 install.packages("factoextra")
@@ -48,6 +28,11 @@ library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
 library(factoextra) # clustering algorithms & visualization
 install.packages("ggrepel")
+
+set.seed(123)
+fviz_nbclust(my_data2, kmeans, method = "wss")
+fviz_nbclust(my_data2, kmeans, method = "silhouette")
+
 # k8 <- kmeans(my_data, centers = 4, nstart = 25)
 # str(k8)
 # #fviz_cluster(k8, geom = "point", ellipse.type = "norm"  )
@@ -80,6 +65,4 @@ grid.arrange(p8, nrow = 1)
 #library(tidyverse)  # data manipulation
 #library(cluster)    # clustering algorithms
 #library(factoextra) # clustering algorithms & visualization
-set.seed(123)
-fviz_nbclust(my_data2, kmeans, method = "wss")
-fviz_nbclust(my_data2, kmeans, method = "silhouette")
+
