@@ -20,7 +20,22 @@ For each dataset, each Naïve Observer assigned every image to a folder (Groups 
 In order to identify which images were most similar to one another, the similarity matrix was reordered according to the first two eigenvectors. This code is based on the Friendly et al., 2002 paper. 
 
 **Step 3 - (Optional)**
-In order to determine the discriminability between images you can simulate data. This code simulates data using ....
+In order to determine the discriminability between images you can simulate data. This code simulates data using the file `SimulatingNaiveObservers.py`. By default, the script reads from the JSON config file `NaiveObserver_SimulationConfig.json`. You can pass a different configuration file with the flag `-c </path/to/config/file>`. The config file should have the format:
+```
+"name": (str) name for the simulated dataset + simularity matrix
+{ 
+  "path": (str) path for saving simulated dataset + similarity matrix (without trailing backslash '/'),
+  "nCols": (int) number of columns (representing total number of participants) to create for the simulated dataset,
+  "nRows": (int) number of rows (representing total number of images in each group) to create for the simulated dataset,
+  "p_control": (list) the probability distrobutions for sorting the controls,
+  "p_gd": (list),
+  "p_od": (list),
+  "p_ogd": (list)
+},
+```
+Note that, for the `p_*` keys, the first item represents the probability an observer is sorted into the control group, the second the glucose deprivation group, the third the oxygen deprivation group, and the fourth the oxygen-glucose deprivation group. 
+
+Run this step first by `python SimulatingNaiveObservers.py --simulate` to generate the simulated datasets described in the config file. Then run `python SimulatingNaiveObservers.py` by itself to generate the similarity matrices and plot the results, storing the figures in the `figures/` directory by default.
 
 **Step 4 - (Optional)** 
 This code calculates the PCA and K-Means Clustering of the similiary matrix or corrgram in order to identify which images were simular to one another 
