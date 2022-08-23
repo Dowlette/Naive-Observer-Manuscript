@@ -26,24 +26,26 @@ import matplotlib.pyplot as plt
 #this code functions by going through each row/column and completting pairwise comparisons
 
 #this part is making the function that compares the image identities
-def make_similarity_matrix(i, numObs):
+def make_similarity_matrix(i, numObs, dataFile):
     '''
     Parameters
     ----------
     i : [int]
-        location/index in dataframe?
+        row number (correlates to the images)
     numObs : [int]
         Number of observer columns in the data
+    dataFile: [pandas dataframe]
+	Data file to be used for calculating sums	
 
     Returns
     -------
-    ColumnSum : pandas df?
+    ColumnSum : completes pairwise comparisons
         (description)
     '''
     df_list = []
     for obs in range(numObs):
         print('obs = ',obs+2)
-        df = data[data.columns[obs+2]].eq(data.iloc[i,obs+2])
+        df = dataFile[dataFile.columns[obs+2]].eq(dataFile.iloc[i,obs+2])
         df *= 1
         df_T = df.T
         df_list.append(df_T)
@@ -71,7 +73,7 @@ if __name__ == "__main__":
     #this part calls on the function made above to compile the results into a similarity matrix
     similaritymatrix = []
     for i in range(0, len(data)):
-        similaritymatrix.append(make_similarity_matrix(i, nCols)) 
+        similaritymatrix.append(make_similarity_matrix(i, nCols, data)) 
         print(similaritymatrix)
     
     #turn the array into a numpy array
