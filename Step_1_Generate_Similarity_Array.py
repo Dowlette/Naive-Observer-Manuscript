@@ -44,7 +44,7 @@ def make_similarity_matrix(i, numObs, dataFile):
     '''
     df_list = []
     for obs in range(numObs):
-        print('obs = ',obs+2)
+        #print('obs = ',obs+2)
         df = dataFile[dataFile.columns[obs+2]].eq(dataFile.iloc[i,obs+2])
         df *= 1
         df_T = df.T
