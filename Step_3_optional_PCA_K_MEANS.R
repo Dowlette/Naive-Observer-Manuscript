@@ -1,3 +1,6 @@
+# https://stackoverflow.com/a/68706205
+# Workaround for handling missing system packages
+options(repos = list(CRAN="http://cran.rstudio.com/"))
 main <- function() {
 
   install.packages("readxl")
