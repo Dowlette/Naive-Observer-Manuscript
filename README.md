@@ -19,7 +19,10 @@ For each dataset, each Naïve Observer assigned every image to a folder (Groups 
 **Step 2 - Generate Corrgram**
 In order to identify which images were most similar to one another, the similarity matrix was reordered according to the first two eigenvectors. This code is based on the Friendly et al., 2002 paper. 
 
-**Step 3 - (Optional)**
+**Step 3 - (Optional)** 
+This code calculates the PCA and K-Means Clustering of the similiary matrix or correlation matrix in order to identify which images were simular to one another using the file 'Step_3_optional_PCA_K_MEANS.R'. Please note that the input data must be formatted so that there is one column to the left most of the data titled 'names' identifying the images. Run this step by typing: 'Rscript Step_3_optional_PCA_K_MEANS.R </path/to/formated/data/file>' to generate the K-Means and PCA graphs, storing the figures in the `figures/` directory by default. 
+
+**Step 4 - (Optional)**
 In order to determine the discriminability between images you can simulate data. This code simulates data using the file `SimulatingNaiveObservers.py`. By default, the script reads from the JSON config file `NaiveObserver_SimulationConfig.json`. You can pass a different configuration file with the flag `-c </path/to/config/file>`. The config file should have the format:
 ```
 "name": (str) name for the simulated dataset + simularity matrix
@@ -37,7 +40,6 @@ Note that, for the `p_*` keys, the first item represents the probability an obse
 
 Run this step first by `python SimulatingNaiveObservers.py --simulate` to generate the simulated datasets described in the config file. Then run `python SimulatingNaiveObservers.py` by itself to generate the similarity matrices and plot the results, storing the figures in the `figures/` directory by default.
 
-**Step 4 - (Optional)** 
-This code calculates the PCA and K-Means Clustering of the similiary matrix or corrgram in order to identify which images were simular to one another 
+
 
 Notes: [Markdown Cheat Sheet](https://www.markdownguide.org/cheat-sheet/)
