@@ -42,6 +42,35 @@ main <- function() {
   #Based on the output from above you change add or remove portions of the code below 
   options(ggrepel.max.overlaps = Inf)
 
+  kList <- list()
+  pList <- list()
+  for (i in 2:8) {
+    kN = kmeans(my_data2, centers = i, nstart = 25)
+    pN = fviz_cluster(k2, data = my_data2,repel = TRUE ,max.overlaps = Inf,labelsize = 8,main = "", palette = "jco", ggtheme = theme_bw())
+    kList.append(kN)
+    pList.append(pN)
+  }
+  
+  #Plotting the outputs
+  library(gridExtra)
+  
+  for (p in pList) {
+     # get the file name from the input argument
+     path = filename
+     if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
+       splitPath <- strsplit(path, split = "/")
+       nameWithExt <- splitPath[[length(splitPath)]]
+       splitName <- strsplit(nameWithExt, split = ".")
+       name <- splitName[[length(splitName)]]
+     } else {   # user just passed the filename
+       splitName <- strsplit(path, ".")
+       name <- splitName[[length(splitName)]]
+     }
+     fName = sprintf("%s_K_Means_Clustering.png", name)
+     # save the file 
+     ggsave(file=fName, p)
+  }
+  
   #If your optimal number of clusters is 2, run the section below
   k2 <- kmeans(my_data2, centers = 2, nstart = 25)
   p2 <- fviz_cluster(k2, data = my_data2,repel = TRUE ,max.overlaps = Inf,labelsize = 8,main = "", palette = "jco", ggtheme = theme_bw())
@@ -73,26 +102,23 @@ main <- function() {
 
 
   #Plotting the outputs
-  library(gridExtra)
+  #library(gridExtra)
 
   #Plot each individually
-  grid.arrange(p2, nrow = 1)
-  grid.arrange(p3, nrow = 1)
-  grid.arrange(p4, nrow = 1)
-  grid.arrange(p5, nrow = 1)
-  grid.arrange(p6, nrow = 1)
-  grid.arrange(p7, nrow = 1)
-  grid.arrange(p8, nrow = 1)
+  #ggsave(file="whatever.pdf", p2) #saves  p2
+  #ggsave(file="whatever.pdf", p3) #saves  p3
+  #ggsave(file="whatever.pdf", p4) #saves  p4
+  #ggsave(file="whatever.pdf", p5) #saves  p5
+  #ggsave(file="whatever.pdf", p6) #saves  p6
+  #ggsave(file="whatever.pdf", p7) #saves  p7
+  #ggsave(file="whatever.pdf", p8) #saves  p8
 
-  #Plot the outputs together 
-  #k=2,k=3,k=4,k=5 together
-  grid.arrange(p2,p3,p4,p5, nrow = 2)
-  #k=4,k=5,k=6,k=7 together
-  grid.arrange(p4,p5, p6, p7, nrow = 2)
-  #k=6,k=7,k=8 together
-  grid.arrange(p6, p7, p8, nrow = 2)
+  
+  #plot1 <- arrangeGrob(p2, p3, p4, p5, nrow=2) #generates plot 1
+  #ggsave(file="whatever.pdf", plot1) #saves plot 1
 
-
+  #plot2 <- arrangeGrob(p6, p7, p8, nrow=2) #generates plot 2
+  #ggsave(file="whatever.pdf", plot2) #saves plot 2
 
 }
 
