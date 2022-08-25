@@ -23,44 +23,13 @@ main <- function() {
   install.packages("factoextra")
   library(factoextra) 
   
-  # get the file name from the input argument
-  path = filename
-  if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
-    splitPath <- strsplit(path, split = "/")
-    nameWithExt <- splitPath[[length(splitPath)]]
-    splitName <- strsplit(nameWithExt, split = ".")
-    name <- splitName[[1]]
-  } else {   # user just passed the filename
-    splitName <- strsplit(path, ".")
-    name <- splitName[[1]]
-  }
-  fName <- sprintf("figures/%s_PCA_var.png", name)
   # save to png 
-  png(fName)
+  png("figures/PCA.png")
   result2 <- PCA(my_data2) # graphs generated automatically
   varPCA <- fviz_pca_var(result2)
   print(varPCA)
   dev.off()
   
-   
-  # get the file name from the input argument
-  #path = filename
-  #if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
-   # splitPath <- strsplit(path, split = "/")
-    #nameWithExt <- splitPath[[length(splitPath)]]
-    #splitName <- strsplit(nameWithExt, split = ".")
-    #name <- splitName[[1]]
-  #} else {   # user just passed the filename
-   # splitName <- strsplit(path, ".")
-    #name <- splitName[[1]]
-  #}
-  #fName <- sprintf("figures/%s_PCA_ind.png", name)
-  # save to png 
- # png(fName)
-  #result <- PCA(my_data2, graph=T) # graphs generated automatically
-  #indPCA <- fviz_pca_ind(result)
-  #print(varPCA)
-  #dev.off()
   
   ###% K-Means Clustering
   #Adapted from : https://afit-r.github.io/kmeans_clustering 
