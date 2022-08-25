@@ -45,8 +45,8 @@ main <- function() {
   kList <- list()
   pList <- list()
   for (i in 2:8) {
-    kN = kmeans(my_data2, centers = i, nstart = 25)
-    pN = fviz_cluster(kN, data = my_data2,repel = TRUE ,max.overlaps = Inf,labelsize = 8,main = "", palette = "jco", ggtheme = theme_bw())
+    kN <- kmeans(my_data2, centers = i, nstart = 25)
+    pN <- fviz_cluster(kN, data = my_data2,repel = TRUE ,max.overlaps = Inf,labelsize = 8,main = "", palette = "jco", ggtheme = theme_bw())
     kList[[length(kList)+1]] = kN
     pList[[length(pList)+1]] = pN
   }
