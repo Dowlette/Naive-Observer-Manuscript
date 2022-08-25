@@ -18,7 +18,7 @@ main <- function() {
 
 
   # PCA Variable Factor Map
-  install.packages("FactoMineR")
+  install.packages("FactoMineR",dependencies = TRUE, repos = "http://cran.us.r-project.org")
   library(FactoMineR)
   result <- PCA(my_data2) # graphs generated automatically
 
