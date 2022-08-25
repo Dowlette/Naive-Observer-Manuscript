@@ -39,7 +39,7 @@ main <- function() {
   plot.PCA(result, axes=c(1, 2), choix="ind")
   
   result2 <- PCA(my_data2, graph=T) # graphs generated automatically
-  plot.PCA(result2, axes=c(1, 2), choix="ind")
+  plot.PCA(result2, axes=c(1, 2), choix="var")
   print(result)
   print(result2)
   dev.off()
