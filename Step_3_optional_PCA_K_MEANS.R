@@ -20,6 +20,8 @@ main <- function() {
   # PCA Variable Factor Map
   install.packages("FactoMineR",dependencies = TRUE, repos = "http://cran.us.r-project.org")
   library(FactoMineR)
+  install.packages("factoextra")
+  library(factoextra) 
   
   # get the file name from the input argument
   path = filename
