@@ -32,14 +32,34 @@ main <- function() {
     splitName <- strsplit(path, ".")
     name <- splitName[[1]]
   }
-  fName <- sprintf("figures/%s_PCA.png", name)
+  fName <- sprintf("figures/%s_PCA_var.png", name)
+  # save to png 
+  png(fName)
+  
+  result2 <- PCA(my_data2, graph=T) # graphs generated automatically
+  plot.PCA(result2, axes=c(1, 2), choix="var")
+  print(result)
+  print(result2)
+  dev.off()
+  
+   
+  # get the file name from the input argument
+  path = filename
+  if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
+    splitPath <- strsplit(path, split = "/")
+    nameWithExt <- splitPath[[length(splitPath)]]
+    splitName <- strsplit(nameWithExt, split = ".")
+    name <- splitName[[1]]
+  } else {   # user just passed the filename
+    splitName <- strsplit(path, ".")
+    name <- splitName[[1]]
+  }
+  fName <- sprintf("figures/%s_PCA_ind.png", name)
   # save to png 
   png(fName)
   result <- PCA(my_data2, graph=T) # graphs generated automatically
   plot.PCA(result, axes=c(1, 2), choix="ind")
   
-  result2 <- PCA(my_data2, graph=T) # graphs generated automatically
-  plot.PCA(result2, axes=c(1, 2), choix="var")
   print(result)
   print(result2)
   dev.off()
