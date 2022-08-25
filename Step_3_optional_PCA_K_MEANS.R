@@ -36,8 +36,8 @@ main <- function() {
   # save to png 
   png(fName)
   result2 <- PCA(my_data2, graph=T) # graphs generated automatically
-  plot.PCA(result2, axes=c(1, 2), choix="var")
-  print(result2)
+  varPCA <- fviz_pca_var(result2)
+  print(varPCA)
   dev.off()
   
    
@@ -56,8 +56,8 @@ main <- function() {
   # save to png 
   png(fName)
   result <- PCA(my_data2, graph=T) # graphs generated automatically
-  plot.PCA(result, axes=c(1, 2), choix="ind")
-  print(result)
+  indPCA <- fviz_pca_ind(result)
+  print(varPCA)
   dev.off()
   
   ###% K-Means Clustering
