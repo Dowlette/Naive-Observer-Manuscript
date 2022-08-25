@@ -35,10 +35,8 @@ main <- function() {
   fName <- sprintf("figures/%s_PCA_var.png", name)
   # save to png 
   png(fName)
-  
   result2 <- PCA(my_data2, graph=T) # graphs generated automatically
   plot.PCA(result2, axes=c(1, 2), choix="var")
-  print(result)
   print(result2)
   dev.off()
   
@@ -59,9 +57,7 @@ main <- function() {
   png(fName)
   result <- PCA(my_data2, graph=T) # graphs generated automatically
   plot.PCA(result, axes=c(1, 2), choix="ind")
-  
   print(result)
-  print(result2)
   dev.off()
   
   ###% K-Means Clustering
