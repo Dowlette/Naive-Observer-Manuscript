@@ -65,6 +65,7 @@ main <- function() {
 
   #If your optimal number of clusters is 7, run the section below
   k7 <- kmeans(my_data2, centers = 7, nstart = 25)
+  p7 <- fviz_cluster(k7, data = my_data2,repel = TRUE ,max.overlaps = Inf,labelsize = 8,main = "", palette = "jco", ggtheme = theme_bw())
 
   #If your optimal number of clusters is 8, run the section below
   k8 <- kmeans(my_data2, centers = 8, nstart = 25)
