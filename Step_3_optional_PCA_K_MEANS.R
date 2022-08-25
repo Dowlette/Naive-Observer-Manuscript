@@ -24,8 +24,8 @@ main <- function() {
   library(factoextra) 
   
   # save to png 
-  png("figures/PCA.png")
   result2 <- PCA(my_data2) # graphs generated automatically
+  png("figures/PCA.png")
   varPCA <- fviz_pca_var(result2)
   print(varPCA)
   dev.off()
