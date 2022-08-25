@@ -35,8 +35,8 @@ main <- function() {
   fName <- sprintf("figures/%s_PCA.png", name)
   # save to png 
   png(fName)
-  result <- PCA(my_data2, choix="ind", graph=T) # graphs generated automatically
-  result2 <- PCA(my_data2, choix="var", graph=T) # graphs generated automatically
+  result <- PCA(my_data2, choix="ind") # graphs generated automatically
+  result2 <- PCA(my_data2, choix="var") # graphs generated automatically
   print(result)
   print(result2)
   dev.off()
