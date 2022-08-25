@@ -20,8 +20,24 @@ main <- function() {
   # PCA Variable Factor Map
   install.packages("FactoMineR",dependencies = TRUE, repos = "http://cran.us.r-project.org")
   library(FactoMineR)
+  
+  # get the file name from the input argument
+  path = filename
+  if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
+    splitPath <- strsplit(path, split = "/")
+    nameWithExt <- splitPath[[length(splitPath)]]
+    splitName <- strsplit(nameWithExt, split = ".")
+    name <- splitName[[1]]
+  } else {   # user just passed the filename
+    splitName <- strsplit(path, ".")
+    name <- splitName[[1]]
+  }
+  fName <- sprintf("figures/%s_%i_PCA.png", name, i)
+  # save to png 
+  png(fName)
   result <- PCA(my_data2) # graphs generated automatically
-
+  print(result)
+  dev.off()
   ###% K-Means Clustering
   #Adapted from : https://afit-r.github.io/kmeans_clustering 
 
