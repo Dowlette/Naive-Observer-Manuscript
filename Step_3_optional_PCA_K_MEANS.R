@@ -32,12 +32,13 @@ main <- function() {
     splitName <- strsplit(path, ".")
     name <- splitName[[1]]
   }
-  fName <- sprintf("figures/%s_%i_PCA.png", name, i)
+  fName <- sprintf("figures/%s_PCA.png", name)
   # save to png 
   png(fName)
   result <- PCA(my_data2) # graphs generated automatically
   print(result)
   dev.off()
+  
   ###% K-Means Clustering
   #Adapted from : https://afit-r.github.io/kmeans_clustering 
 
