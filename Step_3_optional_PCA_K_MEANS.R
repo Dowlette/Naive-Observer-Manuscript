@@ -61,10 +61,10 @@ main <- function() {
        splitPath <- strsplit(path, split = "/")
        nameWithExt <- splitPath[[length(splitPath)]]
        splitName <- strsplit(nameWithExt, split = ".")
-       name <- splitName[[length(splitName)]]
+       name <- splitName[[1]]
      } else {   # user just passed the filename
        splitName <- strsplit(path, ".")
-       name <- splitName[[length(splitName)]]
+       name <- splitName[[1]]
      }
      fName = sprintf("%s_K_Means_Clustering.png", name)
      # save the file 
