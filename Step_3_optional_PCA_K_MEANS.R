@@ -45,31 +45,30 @@ main <- function() {
   kList <- list()
   pList <- list()
   for (i in 2:8) {
+    # get the file name from the input argument
+    path = filename
+    if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
+      splitPath <- strsplit(path, split = "/")
+      nameWithExt <- splitPath[[length(splitPath)]]
+      splitName <- strsplit(nameWithExt, split = ".")
+      name <- splitName[[1]]
+    } else {   # user just passed the filename
+      splitName <- strsplit(path, ".")
+      name <- splitName[[1]]
+    }
+    fName <- sprintf("%s_%i_K_Means_Clustering.png", name, i)
+    # save to png 
+    png(fName)
     kN <- kmeans(my_data2, centers = i, nstart = 25)
     pN <- fviz_cluster(kN, data = my_data2,repel = TRUE ,max.overlaps = Inf,labelsize = 8,main = "", palette = "jco", ggtheme = theme_bw())
     kList[[length(kList)+1]] = kN
     pList[[length(pList)+1]] = pN
+    print(pN)
+    dev.off()
   }
   
   #Plotting the outputs
   library(gridExtra)
-  
-  for (p in pList) {
-     # get the file name from the input argument
-     path = filename
-     if ( grepl(path, "/", fixed = TRUE) ) {    # user passed in a path to the file
-       splitPath <- strsplit(path, split = "/")
-       nameWithExt <- splitPath[[length(splitPath)]]
-       splitName <- strsplit(nameWithExt, split = ".")
-       name <- splitName[[1]]
-     } else {   # user just passed the filename
-       splitName <- strsplit(path, ".")
-       name <- splitName[[1]]
-     }
-     fName <- sprintf("%s_K_Means_Clustering.png", name)
-     # save the file 
-     ggsave(file=fName, p)
-  }
   
   #If your optimal number of clusters is 2, run the section below
   k2 <- kmeans(my_data2, centers = 2, nstart = 25)
