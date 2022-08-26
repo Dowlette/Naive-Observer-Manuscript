@@ -77,14 +77,14 @@ if __name__ == "__main__":
     #X = X[np.random.permutation(X.shape[0]),:]
    # similarity = np.cov(X)
 
-plt.figure()
-plt.imshow(similarity)
-plt.axis('image')
-plt.xlabel('Image number')
-plt.ylabel('Image number')
-plt.title('Similarities of image pairs: Original matrix')
-plt.show()
-plt.colorbar(similarity)
+#plt.figure()
+#plt.imshow(similarity)
+#plt.axis('image')
+#plt.xlabel('Image number')
+#plt.ylabel('Image number')
+#plt.title('Similarities of image pairs: Original matrix')
+#plt.show()
+#plt.colorbar(similarity)
 #%% Reorder variables by corrgram approach
 
 # Idea is use the eigenvectors corresponding to the two largest eigenvalues
@@ -96,13 +96,13 @@ plt.colorbar(similarity)
 # to get true, signed angles, rather than checking the sign of components
 # and adding pi as needed.
 
-_, eig_vecs = np.linalg.eigh(similarity)
+    _, eig_vecs = np.linalg.eigh(similarity)
 # Get eigenvectors
 # Using eigh as we are assuming we have a symmetric matrix.
 # TODO: Should be the case that eigenvalues are sorted, so _last_ two
 # columns are largest. May need to check for actual maxima.
 
-angles = np.arctan2(eig_vecs[:,-2], eig_vecs[:,-1])
+    angles = np.arctan2(eig_vecs[:,-2], eig_vecs[:,-1])
 # These are the angles (from the origin) in the plane if you plot the
 # components of the two eigenvectors against each other. In other words,
 # to each index in the similarity matrix we associate an angle.
@@ -111,42 +111,72 @@ angles = np.arctan2(eig_vecs[:,-2], eig_vecs[:,-1])
 # plane, but need to pick a "breakpoint" to start, where there is a large
 # jump in angle.
 
-inds_sort = angles.argsort()[-1::-1]
+    inds_sort = angles.argsort()[-1::-1]
 # (*) To change convention, keep original the sorting order.
-angles_sort = angles[inds_sort]
+    angles_sort = angles[inds_sort]
 
-angle_increments = np.diff(np.unwrap(np.append(angles_sort,angles_sort[0])))
+    angle_increments = np.diff(np.unwrap(np.append(angles_sort,angles_sort[0])))
 # Need to wrap around index 0 in case that is the breakpoint, and unwrap
 # to not pick up spurious jumps from crossing a multiple of pi.
-start_ind = np.abs(angle_increments).argmax() + 1
+    start_ind = np.abs(angle_increments).argmax() + 1
 # This is the breakpoint, as an index into **inds_sort**.
 
-inds_ordered = np.append(inds_sort[start_ind:],inds_sort[0:start_ind])
+    inds_ordered = np.append(inds_sort[start_ind:],inds_sort[0:start_ind])
 # This is the variable ordering selected by the corrgram approach,
 # as indices into the original variable set.
 
-sorted_mat = similarity[:,inds_ordered]
-sorted_mat = sorted_mat[inds_ordered,:]
+    sorted_mat = similarity[:,inds_ordered]
+    sorted_mat = sorted_mat[inds_ordered,:]
 #sorted_mat.to_csv('/Users/dowlettealameldin/Desktop/dhklab/StrokeProject/sortedmattest1.csv')
 # Permute the columns and then the rows by the same indices to do a
 # symmetric reordering.
 
-plt.figure()
-plt.imshow(sorted_mat)
-plt.axis('image')
-plt.xlabel('Image number')
-plt.ylabel('Image number')
-plt.title('Similarities of image pairs: Ordered matrix')
-plt.show()
+  #turn the array into a numpy array
+    sorted_mat = np.array(sorted_mat)
+
+    # make a dict for renaming the dataframe {col number : image name}
+    nameList = list(sorted_mat[sorted_mat.columns[1]])
+    length = range(len(nameList))
+    names = dict(zip(length,nameList))
+
+    #turn the array into a dataframe
+    sorted_mat = pd.DataFrame(sorted_mat)
+
+    sorted_mat.rename(names, inplace=True, axis=0)
+    sorted_mat.rename(names, inplace=True, axis=1)
+
+    # get the name of the input file to make a new output name
+    fName = args.datafile.split('.')[0].split('/')[-1]
+    
+    #save the new similarity arry to an excel sheet
+    sorted_mat.to_excel('{}_Correlation_Matrix.xlsx'.format(fName))
+
+    #plot
+    plt.figure(figsize=(20,16)) #increased figure siz for poster
+    sns.set(font_scale=5) #increased font for poster
+    g = sns.heatmap(sorted_mat, cmap='cividis', cbar=True)  #cmap dictates color palette
+
+    plt.savefig('{}_Correlation_Matrix.jpg'.format(fName))
+    plt.savefig('{}_Correlation_Matrix.pdf'.format(fName))
+    plt.savefig('{}_Correlation_Matrix.png'.format(fName))
+    plt.savefig('{}_Correlation_Matrix.tiff'.format(fName))
+
+#plt.figure()
+#plt.imshow(sorted_mat)
+#plt.axis('image')
+#plt.xlabel('Image number')
+#plt.ylabel('Image number')
+#plt.title('Similarities of image pairs: Ordered matrix')
+#plt.show()
 #fig.colorbar(sorted_mat, ax=ax1)
 #plt.colorbar(sorted_mat)
 
-print('The mapping from original image number to ordered position is')
-print(np.array( [np.arange(len(inds_ordered)) , inds_ordered] ).T)
-print('\n')
-print('If LABELS is a list of strings for the experimental conditions')
-print('in the **original** order, you can view the **sorted** conditions')
-print('by LABELS[inds_ordered]')
+#print('The mapping from original image number to ordered position is')
+#print(np.array( [np.arange(len(inds_ordered)) , inds_ordered] ).T)
+#print('\n')
+#print('If LABELS is a list of strings for the experimental conditions')
+#print('in the **original** order, you can view the **sorted** conditions')
+#print('by LABELS[inds_ordered]')
 
 # As loaded in this script:
 #   df['Unnamed: 0'][inds_ordered]
