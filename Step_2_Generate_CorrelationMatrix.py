@@ -149,10 +149,10 @@ if __name__ == "__main__":
     sns.set(font_scale=5) #increased font for poster
     g = sns.heatmap(sorted_mat, cmap='cividis', cbar=True)  #cmap dictates color palette
 
-    plt.savefig('{}_Correlation_Matrix.jpg'.format(fName))
-    plt.savefig('{}_Correlation_Matrix.pdf'.format(fName))
-    plt.savefig('{}_Correlation_Matrix.png'.format(fName))
-    plt.savefig('{}_Correlation_Matrix.tiff'.format(fName))
+    plt.savefig('figures/{}_Correlation_Matrix.jpg'.format(fName))
+    plt.savefig('figures/{}_Correlation_Matrix.pdf'.format(fName))
+    plt.savefig('figures/{}_Correlation_Matrix.png'.format(fName))
+    plt.savefig('figures/{}_Correlation_Matrix.tiff'.format(fName))
 
 #plt.figure()
 #plt.imshow(sorted_mat)
