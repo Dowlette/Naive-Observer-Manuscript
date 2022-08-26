@@ -60,7 +60,7 @@ if __name__ == "__main__":
     
     # load the data file
     df = pd.read_excel(args.datafile)
-    similarity = df.iloc[:,2:].to_numpy()
+    similarity = df.iloc[1:,2:].to_numpy()
 #%% Load example data set from RM email, or simulated data
 
 
