@@ -48,22 +48,34 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-
+#%% Load data from terminal
+if __name__ == "__main__":
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('-d', type=str, dest='datafile',
+                        action='store', required=True,
+                        help='Absolute/relative path to the input data file')
+    
+    args = parser.parse_args()
+    
+    # load the data file
+    df = pd.read_excel(args.datafile)
+    similarity = df.iloc[:,1:].to_numpy()
 #%% Load example data set from RM email, or simulated data
 
 
-if True:
+#if True:
     # True: Use real data
-    filename = '/Users/dowlettealameldin/Desktop/dhklab/StrokeProject/75_25_simularity_array.xlsx'
-    df = pd.read_excel(filename)
-    similarity = df.iloc[:,1:].to_numpy()
-else:
+   # filename = '/Users/dowlettealameldin/Desktop/dhklab/StrokeProject/75_25_simularity_array.xlsx'
+   # df = pd.read_excel(filename)
+   # similarity = df.iloc[:,1:].to_numpy()
+#else:
     # False: Make a random covariance (simularity) matrix
-    signal = np.sin((6.28/5)*np.arange(16))
-    X = 2*(np.random.random((60,16))-0.5) + signal
-    X[20:35,:] = -X[20:35,:]
+  #  signal = np.sin((6.28/5)*np.arange(16))
+   # X = 2*(np.random.random((60,16))-0.5) + signal
+   # X[20:35,:] = -X[20:35,:]
     #X = X[np.random.permutation(X.shape[0]),:]
-    similarity = np.cov(X)
+   # similarity = np.cov(X)
 
 plt.figure()
 plt.imshow(similarity)
@@ -72,7 +84,7 @@ plt.xlabel('Image number')
 plt.ylabel('Image number')
 plt.title('Similarities of image pairs: Original matrix')
 plt.show()
-#plt.colorbar(similarity)
+plt.colorbar(similarity)
 #%% Reorder variables by corrgram approach
 
 # Idea is use the eigenvectors corresponding to the two largest eigenvalues
