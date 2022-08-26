@@ -25,7 +25,13 @@ main <- function() {
   
   # save to png 
   result2 <- PCA(my_data2) # graphs generated automatically
-  png("figures/PCA.png")
+ 
+  png("figures/PCAind.png")
+  indPCA <- fviz_pca_ind(result2)
+  print(varPCA)
+  dev.off()
+  
+  png("figures/PCAvar.png")
   varPCA <- fviz_pca_var(result2)
   print(varPCA)
   dev.off()
