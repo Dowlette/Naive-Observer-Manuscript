@@ -8,7 +8,7 @@ main <- function() {
   library("readxl")
   #Load the xlsx file
   args <- commandArgs(trailingOnly = TRUE)
-  filename <- args[1] #You should use simularity array or corrgram as datafile input (it will not change the PCA or K-Means output
+  filename <- args[1] #You should use raw data formatted correctly for R (1st column with image names should be titled 'names')
   my_data <- read_excel(path = filename)
   #you should only have the names in the columns, no row names
   colnames(my_data) #identify the column names
