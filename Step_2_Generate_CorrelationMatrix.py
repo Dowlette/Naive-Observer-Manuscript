@@ -47,6 +47,7 @@ Initial: 20200926
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+import seaborn as sns
 
 #%% Load data from terminal
 if __name__ == "__main__":
