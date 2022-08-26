@@ -134,16 +134,8 @@ if __name__ == "__main__":
   #turn the array into a numpy array
     sorted_mat = np.array(sorted_mat)
 
-    # make a dict for renaming the dataframe {col number : image name}
-    nameList = list(sorted_mat[sorted_mat.columns[1]])
-    length = range(len(nameList))
-    names = dict(zip(length,nameList))
-
     #turn the array into a dataframe
     sorted_mat = pd.DataFrame(sorted_mat)
-
-    sorted_mat.rename(names, inplace=True, axis=0)
-    sorted_mat.rename(names, inplace=True, axis=1)
 
     # get the name of the input file to make a new output name
     fName = args.datafile.split('.')[0].split('/')[-1]
