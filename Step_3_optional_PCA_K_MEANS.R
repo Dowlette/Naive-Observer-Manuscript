@@ -28,7 +28,7 @@ main <- function() {
  
   png("figures/PCAind.png")
   indPCA <- fviz_pca_ind(result2)
-  print(varPCA)
+  print(indPCA)
   dev.off()
   
   png("figures/PCAvar.png")
