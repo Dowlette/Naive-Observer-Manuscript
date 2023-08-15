@@ -4,9 +4,7 @@ The repo, a companion to manuscript [TODO](https://www.google.com), provides an 
 
 ## Usage
 
-- [ ] TODO: Clean up to focus on usage more than description of paper
-
-Ischemic brain injury occurs when there is impaired blood flow to the brain. Recently, our group has used a primary rat cortical spheroid model to study ischemic injury by depriving the spheroids of oxygen and/or glucose and examining the resulting morphological changes of capillary-like networks via confocal microscopy. However, qualitatively identifying morphological changes from spheroid images can be subjected to potential bias from the researcher, which could affect the interpretation of spheroid image data. To create a method for the classification of immunohistochemistry images, we present an alternative pipeline to standard image analysis and machine learning. Naïve Observers were blinded to the study and were instructed to classify unlabeled immunohistochemistry images into four groups based on the morphological features. Pairwise similarity comparisons of how each image was sorted were used to determine how similar morphological features in each image were to one another.Correlation matrices show that Naïve Observers were able to sort images into distinct groups. Further analysis showed that Naïve Observers were able to distinguish control and glucose deprived spheroids from oxygen deprived and oxygen-glucose deprived spheroids. This analysis method helps to identify potential phenotypes and provides the ability to analyze the perceived similarities between different images that may not be quantifiable using standard image analysis techniques.
+Ischemic brain injury occurs when there is impaired blood flow to the brain. Recently, our group has used a primary rat cortical spheroid model to study ischemic injury by depriving the spheroids of oxygen and/or glucose and examining the resulting morphological changes of capillary-like networks via confocal microscopy. However, qualitatively identifying morphological changes from spheroid images can be subjected to potential bias from the researcher, which could affect the interpretation of spheroid image data. To create a method for the classification of immunohistochemistry images, we present an alternative pipeline to standard image analysis and machine learning. Naïve Observers were blinded to the study and were instructed to classify unlabeled immunohistochemistry images into four groups based on the morphological features. Pairwise similarity comparisons of how each image was sorted were used to determine how similar morphological features in each image were to one another. Correlation matrices show that Naïve Observers were able to sort images into distinct groups. Further analysis showed that Naïve Observers were able to distinguish control and glucose deprived spheroids from oxygen deprived and oxygen-glucose deprived spheroids. This analysis method helps to identify potential phenotypes and provides the ability to analyze the perceived similarities between different images that may not be quantifiable using standard image analysis techniques. This analysis method has the potential for widespread use across labs with different in vitro models as it can be adapted to fit many different cell types of morphological data. Our code is written in Python, providing a platform that is free, open source, and easy to use. The Naïve Observer analysis method is versatile and can be applied to any imaging context. Moreover, our analysis pipeline is of particular interest to newly developing models where accurate feature selection may not be possible with traditional methods.
 
 ### Naive Observers
 
@@ -46,7 +44,7 @@ Run this step first by `python SimulatingNaiveObservers.py --simulate` to genera
 
 ## Installation
 
-TODO: Break into Windows, Mac, Linux
+For Mac/Linux Systems: 
 
 First set up the python virtual environment. From a terminal (Mac, Linux): 
 
@@ -59,3 +57,7 @@ In the terminal you can then activate the environment with
 ```shell
 conda activate spheroid_images
 ```
+
+For windows
+
+Go to windows power shell
