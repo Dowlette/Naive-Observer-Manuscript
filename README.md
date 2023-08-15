@@ -44,7 +44,7 @@ Run this step first by `python SimulatingNaiveObservers.py --simulate` to genera
 
 ## Installation
 
-For Mac/Linux Systems: 
+**For Mac/Linux Systems:**
 
 First set up the python virtual environment. From a terminal (Mac, Linux): 
 
@@ -58,6 +58,6 @@ In the terminal you can then activate the environment with
 conda activate spheroid_images
 ```
 
-For windows
+**For Windows Systems:**
+Install [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) and follow the same instructions as for Linux above.
 
-Go to windows power shell
