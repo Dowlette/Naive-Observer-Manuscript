@@ -28,42 +28,45 @@ def make_similarity_matrix(observer_labels, normalize=False):
     '''
     Parameters
     ----------
-    observer_labels : 2D ndarray of int-like
-        rows are images, cols are observers. Elements should be integer labels,
-        with the (i,n) element stating the label the nth observer gave the ith
-        image.
+    observer_labels : pd.Dataframe
+        rows are images, 1st col is image names, remaining cols are observers.
+        Elements should be integer labels, with the (i,n+1) element stating the
+        label the nth observer gave the ith image.
     normalize : Boolean (default False)
         If True, divide entries of similarity matrix by the number of observers,
         to return the fraction of common labels instead of absolute number.
 
     Returns
     -------
-    square ndarray, type int or float
-        For input shape (nims,nobs), will be (nims,nims). The (i,j) element
-        counts how many of the nobs observers gave the ith and jth images
-        the same label. There is no comparison across observers.
-        If normalize is True, output have dtype float, otherwise int.
-        
-    Note: For simplicity the function just loops twice over the array and 
-    makes all pairwise comparisons. The similarity matrix must be symmetric,
-    so half the comparisons are redundant and could be removed, but this is 
-    unlikely to have much impact at the input sizes typical of human observer
-    labeling.
+    pd.DataFrame
+        For input shape (nims,nobs), output will be (nims,nims+1). The (i,j+1)
+        element counts how many of the nobs observers gave the ith and jth
+        images the same label. There is no comparison across observers.
+        If normalize is True, output have dtype float, otherwise int. The first
+        column is always a copy of the image names from observer_labels
+    
+    Note: Code uses indexing rather than column and index names, because
+    the latter do not have a reliable convention, and will be read from
+    possibly non-standardized data files.
+    
+    Note: For simplicity the function just loops over the array and makes all
+    pairwise comparisons. The similarity matrix must be symmetric, so half the
+    comparisons are redundant and could be removed, but this is unlikely to
+    have much impact at the input sizes typical of human observer labeling.
     '''
-    
-    
-    #TODO : Convert to using pd.DataFrame
-    
+        
     nims = observer_labels.shape[0]
     similarity_matrix = np.full( (nims,nims), -1,dtype='int')
-    for m, ref_row in enumerate(observer_labels):
-        for n, test_row in enumerate(observer_labels):
-            similarity_matrix[m,n] = np.sum( ref_row == test_row )
-            
+    for m in range(nims):
+        similarity_matrix[m,:] = np.sum(
+            observer_labels.iloc[m,1:] == observer_labels.iloc[:,1:], 
+            axis=1 )
     if normalize:
-        nobs = observer_labels.shape[1]
+        nobs = observer_labels.shape[1] - 1  # First col is image names
         similarity_matrix = similarity_matrix.astype('float') / nobs
-    return similarity_matrix
+    image_names = observer_labels.iloc[:,0]
+    return image_names, similarity_matrix
+
 
 
 def load_labels(filename, filetype=None, header_size=None):
@@ -91,7 +94,10 @@ def load_labels(filename, filetype=None, header_size=None):
         labels.
         If the input had a header, it will be used to set column names
     '''
-    pass
+    try:
+        pass
+    except:
+        raise 
 
     # Decide on load type
     # Load data (try block)
@@ -125,8 +131,8 @@ def save_similarity_matrix(filename, similarity_matrix, filetype=None,
     # Detect header, set column names
 
 
-def show_similarity_matrix(similarity_matrix, figsize=None, cmap='cividis',
-                           cbar=False):
+def show_similarity_matrix(image_names, similarity_matrix, figsize=None,
+                           cmap='cividis', cbar=False):
     '''
     Makes a heat map plot of similarity matrix.
 
@@ -142,13 +148,29 @@ def show_similarity_matrix(similarity_matrix, figsize=None, cmap='cividis',
     -------
     None.
     '''
-    pass
-
+    plt.figure(figsize=figsize)
+    sns.heatmap(similarity_matrix, cmap=cmap, cbar=cbar,
+                xticklabels=image_names, yticklabels=image_names)
+    plt.axis('image')
 
 def simulate_similarity_matrix():
     pass
 
 
+
+#%% Temporary data load for debuging
+
+if 0:
+    #cd /Users/jritt/Code/McLaughlin/Naive-Observer-Manuscript
+    #datafile = 'test_raw_data.csv'
+    datafile = 'datasets/raw/RawDatasetZ.csv'
+    data = pd.read_csv(datafile)
+    data.drop(columns="Image Number",inplace=True)
+    #data.drop(columns="Unnamed: 9",inplace=True)
+    data.drop(columns="Identitiy",inplace=True)
+
+# TODO: Check image number consistency across datasets
+# TODO: Include code file for true image type by identifier
 
 #%%
 
@@ -180,5 +202,5 @@ if __name__ == "__main__":
     save_similarity_matrix(f'{outname}_Similarity_Matrix.csv',
                            similarity_matrix)
 
-    #plot
+    # Plot
     show_similarity_matrix(similarity_matrix, figsize=(20,16))
