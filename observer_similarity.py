@@ -132,7 +132,7 @@ def plot_similarity_matrix(df_similarity, image_names=None, figsize=None,
     if image_names is None:
         image_names = df_similarity.columns
     plt.figure(figsize=figsize)
-    sns.heatmap(similarity_matrix, cmap=cmap, cbar=cbar,
+    sns.heatmap(df_similarity, cmap=cmap, cbar=cbar,
                 xticklabels=image_names, yticklabels=image_names, **kwargs)
     if xlabel:
         plt.xlabel(xlabel)
