@@ -105,24 +105,6 @@ def load_labels(filename, header=0, names=None):
     return pd.read_csv(filename, header=header, names=names)
 
 
-def save_similarity_matrix(filename, similarity_matrix, filetype=None, 
-                           header_size=None):
-    '''
-    Parameters
-    ----------
-    filename : str
-        Path to CSV file containing observer labels
-    similarity_matrix : square array like
-        TODO: How to handle categorical vs unique image names
-
-    Returns
-    -------
-    None.
-    '''
-    pass
-
-
-
 def plot_similarity_matrix(df_similarity, image_names=None, figsize=None,
                            title=None, xlabel=None, ylabel=None,
                            cmap='cividis', cbar=False, **kwargs):
@@ -163,24 +145,7 @@ def plot_similarity_matrix(df_similarity, image_names=None, figsize=None,
 def simulate_similarity_matrix():
     pass
 
-
-
-#%% Temporary data load for debuging
-
-if 0:
-    #cd /Users/jritt/Code/McLaughlin/Naive-Observer-Manuscript
-    #datafile = 'test_raw_data.csv'
-    datafile = 'datasets/raw/RawDatasetZ.csv'
-    data = pd.read_csv(datafile)
-    data.drop(columns="Image ID",inplace=True)
-    #data.drop(columns="Unnamed: 9",inplace=True)
-    #data.drop(columns="Identitiy",inplace=True)
-
-# TODO: Check image number consistency across datasets
-# TODO: Include code file for true image type by identifier
-
-#%%
-
+#%% Command line call
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -191,10 +156,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Load the data file request on the command line
-    data = load_labels(args.datafile)
+    df_raw = load_labels(args.datafile)
     
     # Make similarity matrix
-    similarity_matrix = make_similarity_matrix(data)
+    df_similarity = make_similarity_matrix(df_raw)
 
     # Write output file with similarity matrix. Use input name as basename
     # for output file
@@ -205,9 +170,10 @@ if __name__ == "__main__":
     #       generally I'm not a fan of code that writes new files without being
     #       super-transparent to user. I suggest default action might be just
     #       to create the heatmap, with no permanent outputs unless requested.
-    outname = args.datafile.split('.')[0].split('/')[-1]    
-    save_similarity_matrix(f'{outname}_Similarity_Matrix.csv',
-                           similarity_matrix)
+    #outname = args.datafile.split('.')[0].split('/')[-1]    
+    #save_similarity_matrix(f'{outname}_Similarity_Matrix.csv',
+    #                       similarity_matrix)
 
     # Plot
-    show_similarity_matrix(similarity_matrix, figsize=(20,16))
+    plot_similarity_matrix(df_similarity, figsize=(20,16), 
+                           title=args.datafile)
