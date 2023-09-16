@@ -21,8 +21,10 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import json, os, sys  # for parsing simulation config files
 
-#%%
+
+#%% Core functions
 
 def make_similarity_matrix(observer_labels, normalize=False):
     '''
@@ -144,6 +146,29 @@ def plot_similarity_matrix(df_similarity, image_names=None, figsize=None,
 
 def simulate_similarity_matrix():
     pass
+
+#%% Helper functions for config file parsing
+
+# TODO: Do we need these? Environment requireement is way beyond 2.7 anyway
+
+def AsciiEncodeDict(data):
+    '''Encodes dict to ASCII for python 2.7'''
+    # Will break in Python 3
+    ascii_encode = lambda x: x.encode('ascii') if isinstance(x, unicode) else x
+    return dict(map(ascii_encode, pair) for pair in data.items())
+
+def OpenJSON(filename):
+    '''Open JSON file as dictionary
+    params:
+	filename (str) = JSON file to open
+    returns:
+	dict: Python dictionary of JSON
+    '''
+    if sys.version_info.major == 3:
+        return json.load(open(filename,'r'))
+    else:
+        return json.load(open(filename,'r'), object_hook=AsciiEncodeDict)
+
 
 #%% Command line call
 

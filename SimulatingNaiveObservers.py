@@ -15,8 +15,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Helpers
-from Step_1_Generate_Similarity_Array import make_similarity_matrix
-from helpers import OpenJSON
+from naive_observer_functions import make_similarity_matrix
+from naive_observer_functions import OpenJSON
 
 # -------------------------------------------------------------------------
 # Sorting functions
@@ -128,6 +128,7 @@ class NaiveParticipantMatrix:
                                             path  = 'figures/',
                                             ext = 'png')
                 
+#%%
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
