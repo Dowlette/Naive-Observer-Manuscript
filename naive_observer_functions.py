@@ -1,8 +1,8 @@
 """
-naive_observer_analysis
+naive_observer_functions
 
-Module for computing and analyzing naive observer labeling of images into
-numbered categories.
+Helper module for computing and analyzing naive observer labeling of images
+into numbered categories.
 
 Expects data to be in a CSV table whose first columns is image names, and 
 remaining columns are integer labels given to the images by some number
