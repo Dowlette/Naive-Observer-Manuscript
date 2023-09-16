@@ -1,16 +1,16 @@
 """
-Consolidating
-TODO
+naive_observer_analysis
 
-Standard format is a Pandas dataframe whose first column is image names (can be
-arbitrary) and remaining columns correspond to different observers. Rows are 
-images, and the (i,n+1) element is the integer class label the nth observer gave
-to the ith image.
+Module for computing and analyzing naive observer labeling of images into
+numbered categories.
 
-It is allowable for the image names to contain duplicates, in which case they
-are interpreted as categories (e.g. of experimental conditions). If image names
-are unique, a Pandas series of length (number_of_images) can be used to compare
-observer sorting to ground truth, if known.
+Expects data to be in a CSV table whose first columns is image names, and 
+remaining columns are integer labels given to the images by some number
+of "naive" observers, who know only the number of categories but without
+any particularly definition or ordering of categories.
+
+The core function is make_similarity_matrix, which can be used without the
+file load or plotting functions.
 """
 
 
@@ -39,12 +39,15 @@ def make_similarity_matrix(observer_labels, normalize=False):
     Returns
     -------
     pd.DataFrame
-        For input shape (nims,nobs), output will be (nims,nims+1). The (i,j+1)
-        element counts how many of the nobs observers gave the ith and jth
-        images the same label. There is no comparison across observers.
-        If normalize is True, output have dtype float, otherwise int. The first
-        column is always a copy of the image names from observer_labels
+        For input shape (nims,nobs), output will be (nims,nims). The (i,j)
+        element counts how many of the observers gave the ith and jth
+        images the same label. The columns names are a copy of the image
+        names from observer_labels, with the same datatype.
     
+    If normalize is True, every entry is divided by number of rows (the
+    number of observers), and the dtype is forced to float. Otherwise the 
+    output is in counts, and the dtype is int.
+        
     Note: Code uses indexing rather than column and index names, because
     the latter do not have a reliable convention, and will be read from
     possibly non-standardized data files.
@@ -55,53 +58,53 @@ def make_similarity_matrix(observer_labels, normalize=False):
     have much impact at the input sizes typical of human observer labeling.
     '''
         
-    nims = observer_labels.shape[0]
-    similarity_matrix = np.full( (nims,nims), -1,dtype='int')
+    image_names = observer_labels.iloc[:,0]
+    nims = len(image_names)
+
+    similarity = np.full( (nims,nims), np.nan, dtype='float')
     for m in range(nims):
-        similarity_matrix[m,:] = np.sum(
+        similarity[m,:] = np.sum(
             observer_labels.iloc[m,1:] == observer_labels.iloc[:,1:], 
             axis=1 )
+
     if normalize:
         nobs = observer_labels.shape[1] - 1  # First col is image names
-        similarity_matrix = similarity_matrix.astype('float') / nobs
-    image_names = observer_labels.iloc[:,0]
-    return image_names, similarity_matrix
+        similarity = similarity.astype('float') / nobs
+        return pd.DataFrame(similarity, columns=image_names, dtype="float")
+    else:
+        return pd.DataFrame(similarity, columns=image_names, dtype="int")
 
 
 
-def load_labels(filename, filetype=None, header_size=None):
+def load_labels(filename, header=0, names=None):
     '''
-    Loads observer labels from a CSV or Excel file. Assumes the data file is
-    organized as a column of image names, followed by some number of columns
-    of categorical integer labels provided by observers.
+    Loads observer labels from a CSV file. The data file should be organized
+    as a column of image names, followed by some number of columns of 
+    categorical integer labels provided by observers.
 
     Parameters
     ----------
     filename : str
         Path to CSV file containing observer labels
-    filetype : None {default}, 'csv', 'xls', 'xlsx'
-        If not None, forces attempt to load given file type, regardless of
-        filename extension
-    header_size : None, or int
-        If None, will attempt to autodetect if a header is present. If int N, 
-        will ignore N-1 rows of input file, and use the following row as
-        column names.
+    header : int, list of int, None, default 'infer'
+        Passed to pd.read_csv to control header/column name behavior.
+        Default is to use file first row as column names.
+    names: array-like, optional
+        Passed to pd.read_csv to control header/column name behavior.
+        To give custom column names, must pass names as a list. If overwriting
+        names given in the file first row, set header=0. If the file first
+        row is actually data, use header=None.
 
     Returns
     -------
     pd.DataFrame
-        First column is image names, remaining columns are integer observer
-        labels.
-        If the input had a header, it will be used to set column names
+        First column should be image names, remaining columns are integer 
+        observer labels.
     '''
-    try:
-        pass
-    except:
-        raise 
+    # Note: originally planned to allow more heterogeneous input types,
+    # but decided to force CSV, so is only a thin wrapper of read_csv.
+    return pd.read_csv(filename, header=header, names=names)
 
-    # Decide on load type
-    # Load data (try block)
-    # Detect header, set column names
 
 def save_similarity_matrix(filename, similarity_matrix, filetype=None, 
                            header_size=None):
@@ -165,9 +168,9 @@ if 0:
     #datafile = 'test_raw_data.csv'
     datafile = 'datasets/raw/RawDatasetZ.csv'
     data = pd.read_csv(datafile)
-    data.drop(columns="Image Number",inplace=True)
+    data.drop(columns="Image ID",inplace=True)
     #data.drop(columns="Unnamed: 9",inplace=True)
-    data.drop(columns="Identitiy",inplace=True)
+    #data.drop(columns="Identitiy",inplace=True)
 
 # TODO: Check image number consistency across datasets
 # TODO: Include code file for true image type by identifier
