@@ -75,7 +75,6 @@ def make_similarity_matrix(observer_labels, normalize=False):
         return pd.DataFrame(similarity, columns=image_names, dtype="int")
 
 
-
 def load_labels(filename, header=0, names=None):
     '''
     Loads observer labels from a CSV file. The data file should be organized
@@ -109,19 +108,12 @@ def load_labels(filename, header=0, names=None):
 def save_similarity_matrix(filename, similarity_matrix, filetype=None, 
                            header_size=None):
     '''
-    
-
     Parameters
     ----------
     filename : str
         Path to CSV file containing observer labels
     similarity_matrix : square array like
         TODO: How to handle categorical vs unique image names
-    filetype : None {default}, 'csv', 'xls', 'xlsx'
-        If not None, forces attempt to load given file type, regardless of
-        filename extension
-    header_size : None, or int
-        If None, will attempt to autodetect
 
     Returns
     -------
@@ -129,31 +121,43 @@ def save_similarity_matrix(filename, similarity_matrix, filetype=None,
     '''
     pass
 
-    # Decide on load type
-    # Load data (try block)
-    # Detect header, set column names
 
 
-def show_similarity_matrix(image_names, similarity_matrix, figsize=None,
-                           cmap='cividis', cbar=False):
+def plot_similarity_matrix(df_similarity, image_names=None, figsize=None,
+                           title=None, xlabel=None, ylabel=None,
+                           cmap='cividis', cbar=False, **kwargs):
     '''
     Makes a heat map plot of similarity matrix.
 
     Parameters
     ----------
-    similarity_matrix : square array like
-        Square matrix of similarity values
-        If a pd.DataFrame, the column  names will be used as plot labels.
-        If a numpy array, the plot labels will be integers.
-    TODO :  Other input parameters
-    
+    df_similarity : pd.DataFrame
+        Dataframe containing square matrix of similarity values
+        Column names will be used as plot labels.
+    image_names : optional list of strings
+        If given, must have same length as number of images, and will be
+        used to label ticks. If None, uses df_similarity column names.
+    figsize: optional tuple
+        Passed to plt.figure, see pyplot
+    title, xlabel, ylabel: optional str
+        If provided, will set the respective plot string
+    Any remaining keyword parameters will be passed to heatmap function.
+
     Returns
     -------
     None.
     '''
+    if image_names is None:
+        image_names = df_similarity.columns
     plt.figure(figsize=figsize)
     sns.heatmap(similarity_matrix, cmap=cmap, cbar=cbar,
-                xticklabels=image_names, yticklabels=image_names)
+                xticklabels=image_names, yticklabels=image_names, **kwargs)
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+    if title:
+        plt.title(title)
     plt.axis('image')
 
 def simulate_similarity_matrix():
