@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import json, os, sys  # for parsing simulation config files
 
 
-#%% Core functions
+#%% Core functions for loading data, computing similarity, and plotting
 
 def make_similarity_matrix(observer_labels, normalize=False):
     '''
@@ -144,12 +144,95 @@ def plot_similarity_matrix(df_similarity, image_names=None, figsize=None,
         plt.title(title)
     plt.axis('image')
 
-def simulate_similarity_matrix():
-    pass
+
+#%% Corrgram functions
+
+def corrgram_sort(df_similarity):
+    '''
+    Takes a correlation or similarity matrix and reorders the variables
+    according to the first two eigenvectors, to try to highlight blocks of
+    similar variables. Expects symmetric matrices.
+
+    Parameters
+    ----------
+    df_similarity : pd.DataFrame
+        Should be a square similarity matrix, with image names in the columns
+
+    Returns
+    -------
+    pd.DataFrame
+        Will have the same shape and values as the input, just rwith eordered
+        columns and rows
+    
+    Differs from most covariance structuring analysis by simply reordering
+    variables, as opposed to looking for latent factors through linear
+    combinations / rotations. In the application to naive observer classifying,
+    we want to consider permutations since the labels themselves have no
+    intrinsic meaning, and no consistency across observers.
+    
+    Clustering on the original variables and then displaying the similarities
+    in cluster order might produce comparable results, but this visualization
+    makes no prior assumptions on clustering / hierarchy.
+    
+    Ported and modified from M. Friendly corrgram code in R.
+    
+    See:
+        
+    http://www.datavis.ca/papers/corrgram.pdf
+    https://github.com/kwstat/corrgram/blob/master/R/corrgram.r
+    '''
+ 
+    # Idea is use the eigenvectors corresponding to the two largest eigenvalues
+    # to define an angular ordering, and then split that circle at the largest
+    # angle difference to sort the indices. See Friendly corrgram paper.
+    #
+    # Here we trust that unwrapping angles and sorting is good enough. Note
+    # one difference from the earlier implementation is the use of arctan2
+    # to get true, signed angles, rather than checking the sign of components
+    # and adding pi as needed.
+
+    # Using eigh as we are assuming we have a symmetric matrix.
+    _, eig_vecs = np.linalg.eigh(df_similarity)
+
+    # TODO: Should be the case that eigenvalues are sorted, so _last_ two
+    # columns are largest. May need to check for actual maxima.
+    angles = np.arctan2(eig_vecs[:,-2], eig_vecs[:,-1])
+
+    # These are the angles (from the origin) in the plane if you plot the
+    # components of the two eigenvectors against each other. In other words,
+    # to each index in the similarity matrix we associate an angle.
+    #
+    # Now will order the variables by going clockwise(*) around the
+    # plane, but need to pick a "breakpoint" to start, where there is a large
+    # jump in angle.
+
+    # (*) To change convention, delete the reverse indexing.
+    inds_sort = angles.argsort()[-1::-1]
+    angles_sort = angles[inds_sort]
+
+    # Need to wrap around index 0 in case that is the breakpoint, and unwrap
+    # to not pick up spurious jumps from crossing a multiple of pi.
+    angle_increments = np.diff(np.unwrap(np.append(angles_sort,angles_sort[0])))
+    
+    # This is the breakpoint, as an index into **inds_sort**.
+    start_ind = np.abs(angle_increments).argmax() + 1
+
+    # This is the variable ordering selected by the corrgram approach,
+    # as indices into the original variable set.
+    inds_ordered = np.append(inds_sort[start_ind:],inds_sort[0:start_ind])
+
+    # Permute the columns and then the rows by the same indices to do a
+    # symmetric reordering. Note: simply sorting the values would lose
+    # the label IDs used as column names.
+    df_sorted = df_similarity.iloc[:,inds_ordered].copy()
+    df_sorted = df_sorted.iloc[inds_ordered,:]
+
+    return df_sorted
+
 
 #%% Helper functions for config file parsing
 
-# TODO: Do we need these? Environment requireement is way beyond 2.7 anyway
+# TODO: Do we need these? Environment requirement is way beyond 2.7 anyway
 
 def AsciiEncodeDict(data):
     '''Encodes dict to ASCII for python 2.7'''
@@ -170,6 +253,13 @@ def OpenJSON(filename):
         return json.load(open(filename,'r'), object_hook=AsciiEncodeDict)
 
 
+#%% Simulation
+
+def simulate_similarity_matrix():
+    pass
+
+
+
 #%% Command line call
 
 if __name__ == "__main__":
@@ -186,6 +276,12 @@ if __name__ == "__main__":
     # Make similarity matrix
     df_similarity = make_similarity_matrix(df_raw)
 
+    df_sorted = corrgram_sort(df_similarity)
+
+    # Plot heatmap
+    plot_similarity_matrix(df_similarity, title="Similarity of " + args.datafile)
+    plot_similarity_matrix(df_sorted, title="Sorted Similarity of " + args.datafile)
+
     # Write output file with similarity matrix. Use input name as basename
     # for output file
     # TODO: Replace with os module calls
@@ -199,6 +295,3 @@ if __name__ == "__main__":
     #save_similarity_matrix(f'{outname}_Similarity_Matrix.csv',
     #                       similarity_matrix)
 
-    # Plot
-    plot_similarity_matrix(df_similarity, figsize=(20,16), 
-                           title=args.datafile)
