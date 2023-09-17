@@ -363,6 +363,27 @@ class NaiveParticipantMatrix:
                                             ext = 'png')
 
 
+'''
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument('-c', type=str, dest='config', default='NaiveObserver_SimulationConfig.json',
+                    action='store', required=False,
+                    help='Absolute or relative path of JSON config file containing simulation info')
+parser.add_argument('--simulate', action='store_true',
+                    help='Set this flag if you want/need to build the simulated matrices before plotting. Default False')
+
+args = parser.parse_args()
+
+# instantiate class with path to config file (default: NaiveObserver.json)
+npm = NaiveParticipantMatrix(args.config)
+
+# by default, we will assume the simulated matrices exist.
+if args.simulate:
+    npm.createSimulatedMatrices()
+else:
+    npm.createSimilarityMatrices()
+'''
+
 
 #%% Command line call
 
