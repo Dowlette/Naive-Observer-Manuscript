@@ -274,6 +274,11 @@ class NaiveParticipantMatrix:
         '''
         self.config = OpenJSON(config)
         
+    def expose_config(self):
+        # Just a debug helper function
+        return self.config
+    
+    
     def createSimulatedMatrices(self):
         # loop through all desired tests
         for name in self.config.keys():
@@ -283,27 +288,29 @@ class NaiveParticipantMatrix:
             
             print('Creating file {}/{}_Simulated_Matrix...'.format(path,name))
             
-            control = np.random.choice([1,2,3,4], size=nRows*nCols, p=self.config[name]['p_control'])
-            control_matrix = np.array(control).reshape(nRows, nCols)
+            cur_sim_type = self.config[name]
+            cur_p = cur_sim_type['p_control']
+            label_ints = np.arange(len(cur_p)) + 1 # 1-offset by convention
+            # TODO: Loop over treatment list, make general for number of classes
+            #   Will require changing or dropping config file
 
-            gd = np.random.choice([1,2,3,4], size=nRows*nCols, p=self.config[name]['p_gd'])
-            gd_matrix = np.array(gd).reshape(nRows, nCols)            
+            control_matrix = np.random.choice(label_ints, size=(nRows,nCols), p=self.config[name]['p_control'])
+
+            gd_matrix = np.random.choice(label_ints, size=(nRows, nCols), p=self.config[name]['p_gd'])
             
-            od = np.random.choice([1,2,3,4], size=nRows*nCols, p=self.config[name]['p_od'])
-            od_matrix = np.array(od).reshape(nRows, nCols)
+            od_matrix = np.random.choice(label_ints, size=(nRows, nCols), p=self.config[name]['p_od'])
             
-            ogd = np.random.choice([1,2,3,4], size=nRows*nCols, p=self.config[name]['p_ogd'])
-            ogd_matrix = np.array(ogd).reshape(nRows, nCols)    
+            ogd_matrix = np.random.choice(label_ints, size=(nRows, nCols), p=self.config[name]['p_ogd'])
             
             # create naive participant matrix
             naive_participant_matrix = np.concatenate((control_matrix, gd_matrix, od_matrix, ogd_matrix))
             
             # save into similarity matrix
-            naive_participant_array = np.array(naive_participant_matrix)
-            naive_participant_dataframe = pd.DataFrame(naive_participant_array)
+            naive_participant_dataframe = pd.DataFrame(naive_participant_matrix)
             # add a blank column in the beginning to conform to standard data format
             naive_participant_dataframe.insert(loc=0, column='BLANK', value='')
-            naive_participant_dataframe.to_excel('{}/{}_Simulated_Matrix.xlsx'.format(path,name))
+            #naive_participant_dataframe.to_excel('{}/{}_Simulated_Matrix.xlsx'.format(path,name))
+            # TODO: return matrix instead of write a file
             
     def plotSimilarityMatrices(self, arr, title, path, ext, figSize=(20,16),
                                fontSize=5, xlabel='image #', ylabel='image #',
@@ -320,6 +327,10 @@ class NaiveParticipantMatrix:
             cmap (str):       colormap string
             x/yticks (list):  list of strings containing labels for the data
         '''
+        
+        # TODO: Replace with general inputs
+        #   How to read and use the right strings on tick marks?
+        
         plt.imshow(arr)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
@@ -335,6 +346,9 @@ class NaiveParticipantMatrix:
         
     
     def createSimilarityMatrices(self):
+        # TODO: replace with generic make_similarity_matrix
+        # TODO: Change name to highlight looping over parameters
+        
         for name in self.config.keys():
             path = self.config[name]['path']
             fileName = '{}/{}_Simulated_Matrix.xlsx'.format(path,name)
@@ -343,24 +357,33 @@ class NaiveParticipantMatrix:
                 print('{} does not exist, please run createMatrices() first.')
                 continue
             else:
-                print('Creating file {}/{}_Similarity_Matrix...'.format(path,name))
-                data = pd.read_excel(fileName)
-                nCols = len(data.columns) - 2       # the first two columns are just names of the images
-                similarity_matrix = []
-                for i in range(len(data)):
-                    similarity_matrix.append(make_similarity_matrix(i, numObs=nCols, dataFile=data))
+                print('Reading file {}/{}_Similarity_Matrix...'.format(path,name))
+                # TODO: replace with arrays in memory
+                # TODO: even with workaround, needs CSV not XLS
+                df_raw = load_labels(fileName)
+                #nCols = len(data.columns) - 2       # the first two columns are just names of the images
+                #similarity_matrix = []
+                #for i in range(len(data)):
+                #    similarity_matrix.append(make_similarity_matrix(i, numObs=nCols, dataFile=data))
                 #turn the array into a numpy array
-                similarity_array = np.array(similarity_matrix)
+                #similarity_array = np.array(similarity_matrix)
                 #turn the array into a dataframe
-                similarity_df = pd.DataFrame(similarity_array)
+                #similarity_df = pd.DataFrame(similarity_array)
+                
+                df_similarity = make_similarity_matrix(df_raw)
+                
                 #save the new similarity arry to an excel sheet
-                similarity_df.to_excel('{}/{}_Similarity_Matrix.xlsx'.format(path,name))
+                # TODO: return result rather than write to file, handle multiple times
+                # through loop
+                
+                #similarity_df.to_excel('{}/{}_Similarity_Matrix.xlsx'.format(path,name))
     
+                # TODO: Plots should be specifically requested
                 # now plot
-                self.plotSimilarityMatrices(arr   = similarity_array, 
-                                            title = name,
-                                            path  = 'figures/',
-                                            ext = 'png')
+                #self.plotSimilarityMatrices(arr   = df_similarity, 
+                #                            title = name,
+                #                            path  = 'figures/',
+                #                            ext = 'png')
 
 
 '''
