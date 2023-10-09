@@ -21,7 +21,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-import json, os, sys  # for parsing simulation config files
+import json, sys  # for parsing simulation config files
 
 
 #%% Core functions for loading data, computing similarity, and plotting
@@ -256,34 +256,6 @@ def get_config(filepath):
     return _OpenJSON(filepath)
 
 
-#%%
-
-# TODO: This is the __main__ block from simulation code; rework for arguments, 
-# especially flags on whether to analyze or simulate
-
-'''
-from argparse import ArgumentParser
-parser = ArgumentParser()
-parser.add_argument('-c', type=str, dest='config', default='NaiveObserver_SimulationConfig.json',
-                    action='store', required=False,
-                    help='Absolute or relative path of JSON config file containing simulation info')
-parser.add_argument('--simulate', action='store_true',
-                    help='Set this flag if you want/need to build the simulated matrices before plotting. Default False')
-
-args = parser.parse_args()
-
-# instantiate class with path to config file (default: NaiveObserver.json)
-npm = NaiveParticipantMatrix(args.config)
-
-# by default, we will assume the simulated matrices exist.
-if args.simulate:
-    npm.createSimulatedMatrices()
-else:
-    npm.createSimilarityMatrices()
-'''
-
-
-
 #%% Simulate observers with specified classification ability
 
 def create_simulated_matrices(config):
@@ -295,28 +267,29 @@ def create_simulated_matrices(config):
     ----------
     config : dictionary with the following structure
         path:           (str)   path for writing output files
-        num_observers:  (int)   number of output columns
-        num_images_per_class:     (int)   number of rows _within_ each class
+        num_observers:  (int)   number of observers to use when generating samples
+        num_images_per_class:     (int)   number of images _within_ each class
         experiments: dict
         
         The experiments dict should have strings for keys, which are taken as
         the names of the experiments. Each value should be another dict, with
         strings as keys that are taken as treatment names. The corresponding
-        values should be a list/array of floats that add to one, with the same
+        values should be an array of floats that add to one, with the same
         length as the number of treatments/keys.
         The floats are the probabilities that an image of the given treatment
         type will be placed into the different class numbers.
 
     It is intended but not required that config be loaded from a JSON 
     configuration file:
-        config = nof.get_config(filename)
-        simulated_simmat = nof.create_simulated_matrices(config)
+        config = nof.get_config(filepath)
+        simulated_similarity = nof.create_simulated_matrices(config)
 
     Returns
     -------
     dict of pd.DataFrames
         The keys will be experiment names, and the DataFrames will use
-        treatments as the column names
+        treatments as the column names of similarity matrices (the outputs
+        of make_similarity_matrix)
     '''
 
     nRows = config['num_images_per_class']
@@ -359,47 +332,68 @@ def create_simulated_matrices(config):
 
 #%% Command line call
 
+
+def _main(args):
+    '''
+    Intended to be called only from if __main__ 
+    args is usually an argparse.Namespace obejct, but can be anything
+    with the correct attributes if passed in manually
+    '''
+    
+    if args.datafile:
+        # Load the data file request on the command line
+        df_raw = load_labels(args.datafile)
+        
+        # Make similarity matrix and sorted version
+        df_similarity = make_similarity_matrix(df_raw)
+        df_sorted = corrgram_sort(df_similarity)
+    
+        # Plot heatmaps
+        plot_similarity_matrix(df_similarity, title="Similarity of " + args.datafile)
+        plot_similarity_matrix(df_sorted, title="Sorted Similarity of " + args.datafile)
+        
+    if args.configfile:
+        # Simulate observers
+        config = get_config(args.configfile)
+        dict_simulated = create_simulated_matrices(config)
+    
+        for exp_name in dict_simulated:
+            df_cur = dict_simulated[exp_name]
+            df_cur_sorted = corrgram_sort(df_cur)
+            plot_similarity_matrix(df_cur, title="Similarity of " + exp_name)
+            plot_similarity_matrix(df_cur_sorted, title="Sorted Similarity of " + exp_name)
+
+    print(" ")
+    print("Displaying all requested figures.")
+    print("Closing all plot windows will quit.")
+    print("Hitting Ctrl-C in the terminal should close all and quit, but due")
+    print("to Matplotlib's buggy cross-platform performance, may fail.")
+    print("Recommended usage is to import this moodule in your own code, rather")
+    print("than call from a CLI.")    
+    plt.show()
+
+
 if __name__ == "__main__":
     from argparse import ArgumentParser
-    parser = ArgumentParser()
+    parser = ArgumentParser(epilog='Functions for naive observer analysis. ' + 
+                            'See make_similarity_matrix and create_simulated_matrices ' +
+                            'for expected input and configuration formats.')
     parser.add_argument('-d', type=str, dest='datafile',
-                        action='store', required=True,
-                        help='Absolute/relative path to the input data file')
+                        action='store', required=False,
+                        help='Absolute/relative path to a data file')
+    parser.add_argument('-c', type=str, dest='configfile',
+                        action='store', required=False,
+                        help='Absolute/relative path to a config file')
     args = parser.parse_args()
+
+    if ( (args.datafile==None) and (args.configfile==None) ):
+        print('At least one of a data file or a config file path should be given')
+        print('when calling from a command line (recommended usage is to import')
+        print('in your own code with handling of filenames and save options)')
+        print(' ')
+        parser.print_help()
+        # SystemExit is annoying in REPL, but we should land here only if
+        # actually invoked as a script
+        raise SystemExit()
     
-    # Load the data file request on the command line
-    df_raw = load_labels(args.datafile)
-    
-    # Make similarity matrix and sorted version
-    df_similarity = make_similarity_matrix(df_raw)
-    df_sorted = corrgram_sort(df_similarity)
-
-    # Plot heatmaps
-    plot_similarity_matrix(df_similarity, title="Similarity of " + args.datafile)
-    plot_similarity_matrix(df_sorted, title="Sorted Similarity of " + args.datafile)
-
-    # Simulate observers
-    config_path = 'NaiveObserver_SimulationConfig.json'
-    config = get_config(config_path)
-    dict_simulated = create_simulated_matrices(config)
-
-    for exp_name in dict_simulated:
-        df_cur = dict_simulated[exp_name]
-        df_cur_sorted = corrgram_sort(df_cur)
-        plot_similarity_matrix(df_cur, title="Similarity of " + exp_name)
-        plot_similarity_matrix(df_cur_sorted, title="Sorted Similarity of " + exp_name)
-
-
-    # Write output file with similarity matrix. Use input name as basename
-    # for output file
-    # TODO: Replace with os module calls
-    # TODO: Write file in same directory as input? Use an input argument to
-    #       override output location? Does not seem obviously correct to just
-    #       write an output file to the current working directory. More
-    #       generally I'm not a fan of code that writes new files without being
-    #       super-transparent to user. I suggest default action might be just
-    #       to create the heatmap, with no permanent outputs unless requested.
-    #outname = args.datafile.split('.')[0].split('/')[-1]    
-    #save_similarity_matrix(f'{outname}_Similarity_Matrix.csv',
-    #                       similarity_matrix)
-
+    _main(args)
