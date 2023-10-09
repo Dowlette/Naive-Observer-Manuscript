@@ -234,13 +234,13 @@ def corrgram_sort(df_similarity):
 
 # TODO: Do we need these? Environment requirement is way beyond 2.7 anyway
 
-def AsciiEncodeDict(data):
+def _AsciiEncodeDict(data):
     '''Encodes dict to ASCII for python 2.7'''
     # Will break in Python 3
     ascii_encode = lambda x: x.encode('ascii') if isinstance(x, unicode) else x
     return dict(map(ascii_encode, pair) for pair in data.items())
 
-def OpenJSON(filename):
+def _OpenJSON(filename):
     '''Open JSON file as dictionary
     params:
 	filename (str) = JSON file to open
@@ -250,141 +250,16 @@ def OpenJSON(filename):
     if sys.version_info.major == 3:
         return json.load(open(filename,'r'))
     else:
-        return json.load(open(filename,'r'), object_hook=AsciiEncodeDict)
+        return json.load(open(filename,'r'), object_hook=_AsciiEncodeDict)
+
+def get_config(filepath):
+    return _OpenJSON(filepath)
 
 
-#%% Simulated observers
+#%%
 
-class NaiveParticipantMatrix:
-    '''
-    Class to store, create, sort, and plot Naive Observer matrices
-    '''
-    def __init__(self, config):
-        '''
-        config : str
-            Path to configuration file. Config file contains keys:
-                MatrixName: name for output file
-                |____ path:      (str)   path for writing output files (WIHTOUT trailing slash: '/')
-                |____ nCols:     (int)   number of columns
-                |____ nRows:     (int)   number of rows
-                |____ p_control: (list)  list describing probabilities of sorting for control group
-                |____ p_gd:      (list)  list describing probabilities of sorting for gd group
-                |____ p_od:      (list)  list describing probabilities of sorting for od
-                |____ p_ogd:     (list)  list describing probabilities of sorting for ogd
-        '''
-        self.config = OpenJSON(config)
-        
-    def expose_config(self):
-        # Just a debug helper function
-        return self.config
-    
-    
-    def createSimulatedMatrices(self):
-        # loop through all desired tests
-        for name in self.config.keys():
-            path = self.config[name]['path']
-            nRows = self.config[name]['nRows']
-            nCols = self.config[name]['nCols']
-            
-            print('Creating file {}/{}_Simulated_Matrix...'.format(path,name))
-            
-            cur_sim_type = self.config[name]
-            cur_p = cur_sim_type['p_control']
-            label_ints = np.arange(len(cur_p)) + 1 # 1-offset by convention
-            # TODO: Loop over treatment list, make general for number of classes
-            #   Will require changing or dropping config file
-
-            control_matrix = np.random.choice(label_ints, size=(nRows,nCols), p=self.config[name]['p_control'])
-
-            gd_matrix = np.random.choice(label_ints, size=(nRows, nCols), p=self.config[name]['p_gd'])
-            
-            od_matrix = np.random.choice(label_ints, size=(nRows, nCols), p=self.config[name]['p_od'])
-            
-            ogd_matrix = np.random.choice(label_ints, size=(nRows, nCols), p=self.config[name]['p_ogd'])
-            
-            # create naive participant matrix
-            naive_participant_matrix = np.concatenate((control_matrix, gd_matrix, od_matrix, ogd_matrix))
-            
-            # save into similarity matrix
-            naive_participant_dataframe = pd.DataFrame(naive_participant_matrix)
-            # add a blank column in the beginning to conform to standard data format
-            naive_participant_dataframe.insert(loc=0, column='BLANK', value='')
-            #naive_participant_dataframe.to_excel('{}/{}_Simulated_Matrix.xlsx'.format(path,name))
-            # TODO: return matrix instead of write a file
-            
-    def plotSimilarityMatrices(self, arr, title, path, ext, figSize=(20,16),
-                               fontSize=5, xlabel='image #', ylabel='image #',
-                               cmap='cividis', xticks=['Ctrl', 'GD', 'OD', 'OGD'],
-                               yticks=['Ctrl', 'GD', 'OD', 'OGD']):
-        '''
-            arr (np array):   input array to plot
-            title (str):      title of plot
-            path (str):       path to save it
-            ext (str):        file extension (jpg, png, tiff...)
-            figSize (tuple):  figure size 
-            fontSize (int):   font size
-            x/ylabel (str):   labels for x and y axes
-            cmap (str):       colormap string
-            x/yticks (list):  list of strings containing labels for the data
-        '''
-        
-        # TODO: Replace with general inputs
-        #   How to read and use the right strings on tick marks?
-        
-        plt.imshow(arr)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.title(title)
-        
-        plt.figure(figsize=figSize)
-        sns.set(font_scale=fontSize)
-        g = sns.heatmap(arr, cmap=cmap)
-        # hard-code ranges for now..
-        plt.xticks(np.arange(7,60,15), xticks, rotation=0)
-        plt.yticks(np.arange(7,60,15), yticks, rotation=90)
-        plt.savefig('{}/{}_Simulated_Similarity_Matrix.{}'.format(path,title,ext))
-        
-    
-    def createSimilarityMatrices(self):
-        # TODO: replace with generic make_similarity_matrix
-        # TODO: Change name to highlight looping over parameters
-        
-        for name in self.config.keys():
-            path = self.config[name]['path']
-            fileName = '{}/{}_Simulated_Matrix.xlsx'.format(path,name)
-            # check if you've generated the simulated matrix excel sheet
-            if not os.path.exists(fileName):
-                print('{} does not exist, please run createMatrices() first.')
-                continue
-            else:
-                print('Reading file {}/{}_Similarity_Matrix...'.format(path,name))
-                # TODO: replace with arrays in memory
-                # TODO: even with workaround, needs CSV not XLS
-                df_raw = load_labels(fileName)
-                #nCols = len(data.columns) - 2       # the first two columns are just names of the images
-                #similarity_matrix = []
-                #for i in range(len(data)):
-                #    similarity_matrix.append(make_similarity_matrix(i, numObs=nCols, dataFile=data))
-                #turn the array into a numpy array
-                #similarity_array = np.array(similarity_matrix)
-                #turn the array into a dataframe
-                #similarity_df = pd.DataFrame(similarity_array)
-                
-                df_similarity = make_similarity_matrix(df_raw)
-                
-                #save the new similarity arry to an excel sheet
-                # TODO: return result rather than write to file, handle multiple times
-                # through loop
-                
-                #similarity_df.to_excel('{}/{}_Similarity_Matrix.xlsx'.format(path,name))
-    
-                # TODO: Plots should be specifically requested
-                # now plot
-                #self.plotSimilarityMatrices(arr   = df_similarity, 
-                #                            title = name,
-                #                            path  = 'figures/',
-                #                            ext = 'png')
-
+# TODO: This is the __main__ block from simulation code; rework for arguments, 
+# especially flags on whether to analyze or simulate
 
 '''
 from argparse import ArgumentParser
@@ -408,6 +283,80 @@ else:
 '''
 
 
+
+#%% Simulate observers with specified classification ability
+
+def create_simulated_matrices(config):
+    '''
+    Returns a dictionary of simulated similarity matrices (or just a numpy
+    array if config has only one experiment in it). 
+ 
+    Parameters
+    ----------
+    config : dictionary with the following structure
+        path:           (str)   path for writing output files
+        num_observers:  (int)   number of output columns
+        num_images_per_class:     (int)   number of rows _within_ each class
+        experiments: dict
+        
+        The experiments dict should have strings for keys, which are taken as
+        the names of the experiments. Each value should be another dict, with
+        strings as keys that are taken as treatment names. The corresponding
+        values should be a list/array of floats that add to one, with the same
+        length as the number of treatments/keys.
+        The floats are the probabilities that an image of the given treatment
+        type will be placed into the different class numbers.
+
+    It is intended but not required that config be loaded from a JSON 
+    configuration file:
+        config = nof.get_config(filename)
+        simulated_simmat = nof.create_simulated_matrices(config)
+
+    Returns
+    -------
+    dict of pd.DataFrames
+        The keys will be experiment names, and the DataFrames will use
+        treatments as the column names
+    '''
+
+    nRows = config['num_images_per_class']
+    nCols = config['num_observers']
+
+    simulated_similarity = dict()
+
+    # loop through all desired tests
+    experiments = config['experiments']
+    for exp_name in experiments:
+        
+        print('Creating {} simulated matrix...'.format(exp_name))
+        
+        cur_exp = experiments[exp_name]
+        num_classes = len( cur_exp.keys() )
+        class_ints = np.arange(num_classes) + 1 # 1-offset by convention
+
+        subject_labels = np.full( (nRows*num_classes, nCols), np.nan)
+        df_labels = pd.DataFrame(subject_labels)
+        treat_ids = []
+        for treat_ind, treat_name in enumerate(cur_exp):
+            block_start = treat_ind*nRows
+            block_end = (treat_ind+1)*nRows
+            df_labels.iloc[block_start:block_end,:] = np.random.choice( 
+                                       class_ints, size=(nRows,nCols),
+                                       p=cur_exp[treat_name] ).astype(int)
+            treat_ids = treat_ids + [treat_name]*nRows
+        
+        # Add the names of treatments to first column
+        df_labels.insert(loc=0, column='Treatments', value=treat_ids)
+        
+        # TODO: Break into two functions: simulate_labels, then similarity?
+
+        # Compute similarity matrix
+        simulated_similarity[exp_name] = make_similarity_matrix( df_labels )
+
+    return simulated_similarity
+
+
+
 #%% Command line call
 
 if __name__ == "__main__":
@@ -421,24 +370,24 @@ if __name__ == "__main__":
     # Load the data file request on the command line
     df_raw = load_labels(args.datafile)
     
-    # Make similarity matrix
+    # Make similarity matrix and sorted version
     df_similarity = make_similarity_matrix(df_raw)
-
     df_sorted = corrgram_sort(df_similarity)
 
-    # Plot heatmap
+    # Plot heatmaps
     plot_similarity_matrix(df_similarity, title="Similarity of " + args.datafile)
     plot_similarity_matrix(df_sorted, title="Sorted Similarity of " + args.datafile)
 
-    # -------- Using NO class
-    # instantiate class with path to config file (default: NaiveObserver.json)
-    npm = NaiveParticipantMatrix(args.config)
-    
-    # by default, we will assume the simulated matrices exist.
-    if args.simulate:
-        npm.createSimulatedMatrices()
-    else:
-        npm.createSimilarityMatrices()
+    # Simulate observers
+    config_path = 'NaiveObserver_SimulationConfig.json'
+    config = get_config(config_path)
+    dict_simulated = create_simulated_matrices(config)
+
+    for exp_name in dict_simulated:
+        df_cur = dict_simulated[exp_name]
+        df_cur_sorted = corrgram_sort(df_cur)
+        plot_similarity_matrix(df_cur, title="Similarity of " + exp_name)
+        plot_similarity_matrix(df_cur_sorted, title="Sorted Similarity of " + exp_name)
 
 
     # Write output file with similarity matrix. Use input name as basename
